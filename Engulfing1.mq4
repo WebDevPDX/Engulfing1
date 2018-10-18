@@ -1,27 +1,5 @@
 dateTime barStart;
-
-void onBar() 
-  {
-    double candleA = Close[2]-Open[2];
-    double candleB = Close[1]-Open[1];
-
-    bool longPos = ( candleA < 0 ) && ( candleB > 0 ) && ( MathAbs(candleA) < MathAbs(candleB) );
-    bool shortPos = ( candleA > 0 ) && ( candleB < 0 ) && ( MathAbs(candleA) < MathAbs(candleB) );
-
-    //engulfing long
-    if (longPos) 
-      {
-        //OrderSend(Symbol(), OP_BUY, 0.1, Ask, 2, stopLoss("long"), takeProfit("long"));
-        Print("Entrysignal long: ", Ask, ", ", stopLoss("long"), ", ", takeProfit("long"));
-      }
-    
-    //engulfing short
-    if (shortPos) 
-      {
-        //OrderSend(Symbol(), OP_BUY, 0.1, Bid, 2, stopLoss("short"), takeProfit("short"));
-        Print("Entrysignal long: ", Bid, ", ", stopLoss("short"), ", ", takeProfit("short"));
-      }
-  }
+long lastTicketNumber;
 
 double stopLoss(string pos) 
   {
@@ -43,6 +21,38 @@ double takeProfit(string pos)
       return(TP);
    }
 
+long getLastTicketNumber() {
+  if ( OrderSelect(OrdersTotal() != 0) && (OrderSymbol(Symbol())) ) {
+    return OrderSelect(OrderSymbol(Symbol())-1);
+  } else {
+    Print("OrderSelect failed error code is",GetLastError());
+  }
+}
+
+void onBar() 
+  {
+    double candleA = Close[2]-Open[2];
+    double candleB = Close[1]-Open[1];
+
+    bool longPos = ( candleA < 0 ) && ( candleB > 0 ) && ( MathAbs(candleA) < MathAbs(candleB) );
+    bool shortPos = ( candleA > 0 ) && ( candleB < 0 ) && ( MathAbs(candleA) < MathAbs(candleB) );
+
+    //engulfing long
+    if (longPos) 
+      {
+        //OrderSend(Symbol(), OP_BUY, 0.1, Ask, 2, stopLoss("long"), takeProfit("long"));
+        Print("Entrysignal long: ", Ask, ", ", stopLoss("long"), ", ", takeProfit("long"));
+        OrderSelect(OrdersTotal()-1,SELECT_BY_POS);
+      }
+    
+    //engulfing short
+    if (shortPos) 
+      {
+        //OrderSend(Symbol(), OP_BUY, 0.1, Bid, 2, stopLoss("short"), takeProfit("short"));
+        Print("Entrysignal long: ", Bid, ", ", stopLoss("short"), ", ", takeProfit("short"));
+        OrderSelect(OrdersTotal()-1,SELECT_BY_POS);
+      }
+  }
 
 void OnTick()
   {
